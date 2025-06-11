@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 import { AppDataContext } from '../context/AppDataContext';
+import './AdminEditPages.css'
 
 class AddWorkerPage extends Component {
     static contextType = AppDataContext;
@@ -73,7 +74,8 @@ class AddWorkerPage extends Component {
         const teamOptions = teams.map(t => ({ value: t.id, label: t.name }));
 
         return (
-            <div style={{ padding: '2rem' }} dir="rtl">
+            <div className="admin-edit-background">
+                <div className="admin-edit-box">
                 <h3>הוספת עובד חדש</h3>
 
                 <div className="mb-3">
@@ -134,9 +136,10 @@ class AddWorkerPage extends Component {
                     />
                 </div>
 
-                <button className="btn btn-success" onClick={this.handleAddWorker}>
+                <button className="btn btn-success btn-center" onClick={this.handleAddWorker}>
                     הוסף עובד
                 </button>
+            </div>
             </div>
         );
     }

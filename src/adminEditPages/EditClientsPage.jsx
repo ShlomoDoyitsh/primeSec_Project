@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import { AppDataContext } from '../context/AppDataContext';
 import { useNavigate } from 'react-router-dom';
+import './AdminEditPages.css'
 
 export default function EditClientsPage() {
     const { clients, setClients, workers } = useContext(AppDataContext);
@@ -64,8 +65,9 @@ export default function EditClientsPage() {
     };
 
     return (
-        <div style={{ padding: '2rem' }} dir="rtl">
-            <h2>עריכת לקוח קיים</h2>
+        <div className="admin-edit-background" dir="rtl">
+            <div className="admin-edit-box">
+            <h3>עריכת לקוח קיים</h3>
 
             <div className="mb-3">
                 <label>בחר לקוח:</label>
@@ -116,6 +118,7 @@ export default function EditClientsPage() {
                     </div>
                 </>
             )}
+        </div>
         </div>
     );
 }

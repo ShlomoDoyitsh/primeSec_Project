@@ -54,7 +54,7 @@ function LoginPage() {
                 <div className="input-group mb-3" style={{ gridRow: 2 }}>
                     <input
                         type="text"
-                        className="form-control"
+                        className="form-control rtl"
                         placeholder="שם משתמש"
                         value={userNameInput}
                         onChange={(e) => setUserNameInput(e.target.value)}
@@ -64,7 +64,7 @@ function LoginPage() {
                 <div className="input-group mb-3" style={{ gridRow: 3 }}>
                     <input
                         type="password"
-                        className="form-control"
+                        className="form-control rtl"
                         placeholder="סיסמא"
                         value={passwordInput}
                         onChange={(e) => setPasswordInput(e.target.value)}

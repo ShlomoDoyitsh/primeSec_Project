@@ -9,6 +9,9 @@ import TaskCreationPage from "../adminEditPages/TaskCreationPage.jsx";
 import EditClientsPage from "../adminEditPages/EditClientsPage.jsx";
 import EditTasksPage from "../adminEditPages/EditTasksPage.jsx";
 import EditTeamsPage from "../adminEditPages/EditTeamsPage.jsx";
+import './AdminEditPage.css';
+
+
 
 class AdminEditPage extends Component {
     constructor(props) {
@@ -69,7 +72,13 @@ class AdminEditPage extends Component {
                     <EditTasksPage/>
                 </div>;
             default:
-                return <div>בחר פעולה מהתפריט הימני</div>;
+                return (
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <div className="admin-edit-background" />
+                    </div>
+                );
+
+
         }
     }
 
@@ -101,7 +110,7 @@ class AdminEditPage extends Component {
                 </div>
 
                 {/* תוכן */}
-                <div style={{ flex: 1, padding: '2rem' }}>
+                <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
                     {this.renderSelectedSection()}
                 </div>
             </div>

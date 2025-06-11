@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import { AppDataContext } from '../context/AppDataContext';
 import { useNavigate } from 'react-router-dom';
+import './AdminEditPages.css'
 
 export default function EditTasksPage() {
     const { tasks, setTasks, abilities } = useContext(AppDataContext);
@@ -70,8 +71,9 @@ export default function EditTasksPage() {
     };
 
     return (
-        <div style={{ padding: '2rem' }} dir="rtl">
-            <h2>עריכת משימה קיימת</h2>
+        <div className="admin-edit-background" dir="rtl">
+            <div className="admin-edit-box">
+            <h3>עריכת משימה קיימת</h3>
 
             <div className="mb-3">
                 <label>בחר משימה:</label>
@@ -126,6 +128,7 @@ export default function EditTasksPage() {
                     </div>
                 </>
             )}
+        </div>
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import { AppDataContext } from '../context/AppDataContext';
+import './AdminEditPages.css'
 
 export default function EditTeamsPage() {
     const { teams, setTeams, workers, setWorkers, userList, setUserList } = useContext(AppDataContext);
@@ -88,56 +89,59 @@ export default function EditTeamsPage() {
     };
 
     return (
-        <div style={{ padding: '2rem' }} dir="rtl">
-            <h2>עריכת צוותים</h2>
-            <div className="mb-3">
-                <label>בחר צוות:</label>
-                <Select options={teamOptions} value={selectedTeam} onChange={setSelectedTeam} placeholder="בחר צוות..." />
+        <div className="admin-edit-background">
+            <div className="admin-edit-box">
+                <h3>עריכת צוותים</h3>
+                <div className="mb-3">
+                    <label>בחר צוות:</label>
+                    <Select options={teamOptions} value={selectedTeam} onChange={setSelectedTeam} placeholder="בחר צוות..." />
+                </div>
+                {selectedTeam && (
+                    <>
+                        <div className="mb-3">
+                            <label>שם צוות:</label>
+                            <input className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} />
+                        </div>
+
+                        <div className="mb-3">
+                            <label>ראש צוות נוכחי:</label>
+                            <Select isDisabled options={leader ? [leader] : []} value={leader} placeholder="לא נקבע" />
+                        </div>
+
+                        <div className="mb-3">
+                            <label>שנה ראש צוות:</label>
+                            <Select options={members.filter(m => m.value !== leader?.value)} value={newLeader} onChange={setNewLeader} placeholder="בחר ראש צוות חדש..." />
+                            <button className="btn btn-secondary mt-2" onClick={handleChangeLeader}>אשר החלפת ראש צוות</button>
+                        </div>
+
+                        <div className="mb-3">
+                            <label>חברי צוות:</label>
+                            <ul>
+                                {members.map(m => <li key={m.value}>{m.label}</li>)}
+                            </ul>
+                        </div>
+
+                        <div className="mb-3">
+                            <label>הוסף עובד לצוות:</label>
+                            <Select options={workerOptions.filter(w => !members.some(m => m.value === w.value))} value={newMember} onChange={setNewMember} placeholder="בחר עובד..." />
+                            <button className="btn btn-success btn-center" onClick={handleAddMember}>הוסף עובד</button>
+                        </div>
+
+                        <div className="mb-3">
+                            <label>העבר עובד לצוות אחר:</label>
+                            <Select options={members.filter(m => m.value !== leader?.value)} value={moveMember} onChange={setMoveMember} placeholder="בחר עובד..." />
+                            <Select options={otherTeamOptions} value={moveToTeam} onChange={setMoveToTeam} placeholder="בחר צוות יעד..." className="mt-2" />
+                            <button className="btn btn-warning mt-2" onClick={handleMoveMember}>העבר עובד</button>
+                        </div>
+
+                        <div className="d-flex justify-content-between">
+                            <button className="btn btn-danger" onClick={handleDelete}>מחק צוות</button>
+                            <button className="btn btn-primary" onClick={handleSave}>שמור שינויים</button>
+                        </div>
+                    </>
+                )}
             </div>
-            {selectedTeam && (
-                <>
-                    <div className="mb-3">
-                        <label>שם צוות:</label>
-                        <input className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} />
-                    </div>
-
-                    <div className="mb-3">
-                        <label>ראש צוות נוכחי:</label>
-                        <Select isDisabled options={leader ? [leader] : []} value={leader} placeholder="לא נקבע" />
-                    </div>
-
-                    <div className="mb-3">
-                        <label>שנה ראש צוות:</label>
-                        <Select options={members.filter(m => m.value !== leader?.value)} value={newLeader} onChange={setNewLeader} placeholder="בחר ראש צוות חדש..." />
-                        <button className="btn btn-secondary mt-2" onClick={handleChangeLeader}>אשר החלפת ראש צוות</button>
-                    </div>
-
-                    <div className="mb-3">
-                        <label>חברי צוות:</label>
-                        <ul>
-                            {members.map(m => <li key={m.value}>{m.label}</li>)}
-                        </ul>
-                    </div>
-
-                    <div className="mb-3">
-                        <label>הוסף עובד לצוות:</label>
-                        <Select options={workerOptions.filter(w => !members.some(m => m.value === w.value))} value={newMember} onChange={setNewMember} placeholder="בחר עובד..." />
-                        <button className="btn btn-success mt-2" onClick={handleAddMember}>הוסף עובד</button>
-                    </div>
-
-                    <div className="mb-3">
-                        <label>העבר עובד לצוות אחר:</label>
-                        <Select options={members.filter(m => m.value !== leader?.value)} value={moveMember} onChange={setMoveMember} placeholder="בחר עובד..." />
-                        <Select options={otherTeamOptions} value={moveToTeam} onChange={setMoveToTeam} placeholder="בחר צוות יעד..." className="mt-2" />
-                        <button className="btn btn-warning mt-2" onClick={handleMoveMember}>העבר עובד</button>
-                    </div>
-
-                    <div className="d-flex justify-content-between">
-                        <button className="btn btn-danger" onClick={handleDelete}>מחק צוות</button>
-                        <button className="btn btn-primary" onClick={handleSave}>שמור שינויים</button>
-                    </div>
-                </>
-            )}
         </div>
+
     );
 }

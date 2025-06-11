@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 import { AppDataContext } from '../context/AppDataContext';
+import './AdminEditPages.css'
 
 class AddTeamPage extends Component {
     static contextType = AppDataContext;
@@ -133,78 +134,81 @@ class AddTeamPage extends Component {
         );
 
         return (
-            <div style={{ padding: '2rem' }} dir="rtl">
-                <h3>יצירת צוות חדש</h3>
+            <div className="admin-edit-background">
+                <div className="admin-edit-box">
+                    <h3>יצירת צוות חדש</h3>
 
-                <div className="mb-3">
-                    <label>בחר ראש צוות:</label>
-                    <Select
-                        options={teamLeaderOptions}
-                        value={teamLeader}
-                        onChange={this.handleTeamLeaderChange}
-                        placeholder="בחר ראש צוות..."
-                    />
-                </div>
+                    <div className="mb-3">
+                        <label>בחר ראש צוות:</label>
+                        <Select
+                            options={teamLeaderOptions}
+                            value={teamLeader}
+                            onChange={this.handleTeamLeaderChange}
+                            placeholder="בחר ראש צוות..."
+                        />
+                    </div>
 
-                <div className="mb-3">
-                    <label>בחר חברי צוות:</label>
-                    {memberSelections.map((field, index) => {
-                        const excludedUsernames = [
-                            teamLeader?.value,
-                            ...memberSelections
-                                .filter((_, i) => i !== index)
-                                .map((ms) => ms.selectedWorker?.value),
-                        ].filter(Boolean);
+                    <div className="mb-3">
+                        <label>בחר חברי צוות:</label>
+                        {memberSelections.map((field, index) => {
+                            const excludedUsernames = [
+                                teamLeader?.value,
+                                ...memberSelections
+                                    .filter((_, i) => i !== index)
+                                    .map((ms) => ms.selectedWorker?.value),
+                            ].filter(Boolean);
 
-                        const availableOptions = this.getAvailableWorkerOptions(
-                            excludedUsernames,
-                            true // חוסם teamLeader ו-admin
-                        );
+                            const availableOptions = this.getAvailableWorkerOptions(
+                                excludedUsernames,
+                                true // חוסם teamLeader ו-admin
+                            );
 
-                        return (
-                            <div
-                                key={field.id}
-                                className="d-flex mb-2 align-items-center gap-2"
-                            >
-                                <Select
-                                    options={availableOptions}
-                                    value={field.selectedWorker}
-                                    onChange={(selected) =>
-                                        this.handleMemberChange(index, selected)
-                                    }
-                                    placeholder="בחר עובד..."
-                                    className="flex-grow-1"
-                                />
-                                {/* כפתור הסרה יופיע רק אם יש יותר משדה אחד */}
-                                {canRemove && (
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-danger"
-                                        onClick={() => this.handleRemoveMemberField(index)}
-                                    >
-                                        ✖
-                                    </button>
-                                )}
-                                {/* כפתור הוספה רק בשדה האחרון ובאם נבחר עובד */}
-                                {index === memberSelections.length - 1 &&
-                                    field.selectedWorker && (
+                            return (
+                                <div
+                                    key={field.id}
+                                    className="d-flex mb-2 align-items-center gap-2"
+                                >
+                                    <Select
+                                        options={availableOptions}
+                                        value={field.selectedWorker}
+                                        onChange={(selected) =>
+                                            this.handleMemberChange(index, selected)
+                                        }
+                                        placeholder="בחר עובד..."
+                                        className="flex-grow-1"
+                                    />
+                                    {/* כפתור הסרה יופיע רק אם יש יותר משדה אחד */}
+                                    {canRemove && (
                                         <button
                                             type="button"
-                                            className="btn btn-outline-success"
-                                            onClick={this.handleAddMemberField}
+                                            className="btn btn-outline-danger"
+                                            onClick={() => this.handleRemoveMemberField(index)}
                                         >
-                                            +
+                                            ✖
                                         </button>
                                     )}
-                            </div>
-                        );
-                    })}
-                </div>
+                                    {/* כפתור הוספה רק בשדה האחרון ובאם נבחר עובד */}
+                                    {index === memberSelections.length - 1 &&
+                                        field.selectedWorker && (
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-success"
+                                                onClick={this.handleAddMemberField}
+                                            >
+                                                +
+                                            </button>
+                                        )}
+                                </div>
+                            );
+                        })}
+                    </div>
 
-                <button className="btn btn-primary" onClick={this.handleCreateTeam}>
-                    צור צוות חדש
-                </button>
+                    <button className="btn btn-success btn-center" onClick={this.handleCreateTeam}>
+                        צור צוות חדש
+                    </button>
+                </div>
             </div>
+
         );
     }
 }

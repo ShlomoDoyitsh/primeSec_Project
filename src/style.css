@@ -131,3 +131,8 @@ button:focus-visible {
   }
   /* לא נדרש לעדכן כאן שוב את ה־padding-top, כי זה כבר בהגדרת #app הראשית */
 }
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Select from 'react-select';
 import { AppDataContext } from '../context/AppDataContext';
 import Card from '../components/Card';
+import './AdminEditPages.css'
 
 class EditWorkersPage extends Component {
     static contextType = AppDataContext;
@@ -207,7 +208,8 @@ class EditWorkersPage extends Component {
                 : null;
 
         return (
-            <div style={{ padding: '2rem' }} dir="rtl">
+            <div className="admin-edit-background" dir="rtl">
+                <div className="admin-edit-box">
                 <h3>עריכת עובד</h3>
                 <Select
                     options={workerOpts}
@@ -287,7 +289,7 @@ class EditWorkersPage extends Component {
                             className="btn btn-sm btn-outline-success mb-3"
                             onClick={this.openAddClient}
                         >
-                            הוסף לקוח מנוהל
+                            הוסף לקוח לניהול
                         </button>
 
                         <div className="d-flex justify-content-between">
@@ -354,6 +356,7 @@ class EditWorkersPage extends Component {
                         )}
                     </>
                 )}
+            </div>
             </div>
         );
     }

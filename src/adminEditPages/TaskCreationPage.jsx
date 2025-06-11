@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Select from 'react-select';
 import { useAppData } from '../context/AppDataContext';
 import { useNavigate } from 'react-router-dom';
+import './AdminEditPages.css'
 
 export default function TaskCreationPage() {
     const { tasks, setTasks, abilities, setAbilities } = useAppData();
@@ -39,8 +40,9 @@ export default function TaskCreationPage() {
     const options = abilities.map(a => ({ value: a, label: a }));
 
     return (
-        <div style={{ padding: '2rem' }} dir="rtl">
-            <h2>יצירת משימה חדשה</h2>
+        <div className="admin-edit-background" dir="rtl">
+            <div className="admin-edit-box">
+            <h3>יצירת משימה חדשה</h3>
 
             <div className="mb-3">
                 <label>שם משימה:</label>
@@ -75,9 +77,10 @@ export default function TaskCreationPage() {
                 />
             </div>
 
-            <button className="btn btn-primary" onClick={handleCreate}>
+            <button className="btn btn-success btn-center" onClick={handleCreate}>
                 צור משימה
             </button>
+        </div>
         </div>
     );
 }
