@@ -1,0 +1,102 @@
+.homepage-background {
+    background-image: url(src/images/backgrounImage.png);
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding-top: 3rem;
+    box-sizing: border-box;
+}
+
+.homepage-box {
+    background: rgba(255, 255, 255, 1);
+    width: 100%;
+    max-width: 1000px;
+    min-height: 80vh;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: auto;
+}
+.floating-dropdown {
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    padding: 0.5rem;
+    min-width: 180px;
+}
+
+
+.homepage-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.homepage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.homepage-section {
+    margin-top: 1rem;
+}
+
+.dropdown-header {
+    position: relative;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+.dropdown-icon {
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+
+.dropdown-box {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    z-index: 1000;
+    width: 200px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    max-height: 250px;
+    overflow-y: auto;
+    text-align: right;
+}
+
+.dropdown-option {
+    margin-bottom: 0.25rem;
+}
+
+.dropdown-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #ddd;
+    padding-top: 0.5rem;
+}
+
+.homepage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.center-only {
+    justify-content: center;
+}
+

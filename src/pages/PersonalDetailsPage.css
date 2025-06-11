@@ -1,0 +1,57 @@
+.personal-details-background {
+    background-image: url('../images/backgrounImage.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: fixed; /* נשאר ברקע גם בגלילה */
+    top: 75px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
+/* הקונטיינר של התוכן */
+.personal-details-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3rem 1rem;
+    box-sizing: border-box;
+    min-height: calc(100vh - 75px);
+    direction: rtl;
+}
+
+/* תיבת הפרטים */
+.personal-details-box {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 900px;
+    padding: 2rem;
+}
+
+.personal-details-box h2,
+.personal-details-box h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.personal-details-box ul {
+    padding-right: 1.5rem;
+}
+
+.personal-details-box p {
+    margin-bottom: 0.5rem;
+}
+
+.btn-save {
+    display: block;
+    margin: 2rem auto 1rem;
+    width: 180px;
+    font-size: 1rem;
+}

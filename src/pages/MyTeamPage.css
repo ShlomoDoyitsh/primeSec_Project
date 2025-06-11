@@ -1,0 +1,77 @@
+.my-team-page-background {
+    position: absolute;
+    top: 75px; /* מתחיל אחרי ה־navbar */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url(src/images/backgrounImage.png);
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding-top: 3rem;
+    box-sizing: border-box;
+}
+
+
+.my-team-page-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.my-team-box {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 1200px;
+    padding: 2rem;
+    display: flex;
+    gap: 2rem;
+    overflow: hidden;
+}
+
+.team-list {
+    flex: 1;
+    max-width: 200px;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.team-list .list-group-item {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.team-list .list-group-item:hover {
+    background-color: #f0f0f0;
+}
+
+.member-details {
+    flex: 2;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.member-tasks {
+    flex: 2;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.member-details .card,
+.member-tasks .card {
+    border: none;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
