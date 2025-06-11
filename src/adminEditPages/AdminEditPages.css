@@ -1,0 +1,78 @@
+.admin-edit-background {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url(src/images/backgrounImage.png); /* תיקון הנתיב */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding-top: 3rem;
+    overflow-y: auto;
+}
+
+/* הקופסה שבתוך הדף */
+.admin-edit-box {
+    background: rgba(255, 255, 255,1);
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+.admin-edit-box h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.admin-edit-box label {
+    font-weight: bold;
+    color: #444;
+}
+
+.admin-edit-box input.form-control {
+    font-size: 1rem;
+    padding: 0.5rem;
+}
+
+.admin-edit-box .btn-success {
+    width: 100%;
+    font-size: 1rem;
+}
+
+.admin-edit-box ul.list-group {
+    margin-top: 1rem;
+}
+
+.admin-edit-box .list-group-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    font-size: 0.95rem;
+}
+
+/* כותרת ממורכזת */
+.admin-edit-box h3 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-weight: bold;
+}
+
+/* כפתור ירוק ממורכז */
+.btn-center {
+    display: block !important;
+    margin: 2rem auto 0 !important;
+    width: 180px !important;
+    font-size: 1rem;
+}
+
+
