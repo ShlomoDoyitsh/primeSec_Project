@@ -3,10 +3,17 @@ import { UserContext } from '../context/UserContext.jsx';
 import { AppDataContext } from '../context/AppDataContext';
 import { Navigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
+import Select from 'react-select';
 import './HomePage.css';
 
 export default function HomePage() {
-    const { user, tasks = [], completedTasks = [], markTaskCompleted } = useContext(UserContext);
+    const {
+        user,
+        tasks = [],
+        completedTasks = [],
+        markTaskCompleted,
+        recordTaskProgress
+    } = useContext(UserContext);
     const { workers } = useContext(AppDataContext);
     const [navigateToAssignment, setNavigateToAssignment] = useState(false);
 
@@ -14,8 +21,13 @@ export default function HomePage() {
     const [tempFilters, setTempFilters] = useState({ title: [], client: [], assignedTo: [] });
     const [openDropdown, setOpenDropdown] = useState(null);
 
+    // partial hours input per task
+    const [partialHours, setPartialHours] = useState({});
+    // performer selection per task (for admin/leader)
+    const [selectedPerformer, setSelectedPerformer] = useState({});
+
     useEffect(() => {
-        const handleClickOutside = (e) => {
+        const handleClickOutside = e => {
             const dropdown = document.querySelector('.floating-dropdown');
             if (dropdown && !dropdown.contains(e.target)) {
                 setOpenDropdown(null);
@@ -30,40 +42,23 @@ export default function HomePage() {
     if (!user || !user.isLoggedIn) return <h2 className="text-center">עליך להתחבר קודם</h2>;
     if (navigateToAssignment) return <Navigate to="/task-assignment" />;
 
+    // filter dropdown handlers
     const handleOpenFilter = (field, event) => {
         event.stopPropagation();
         const rect = event.currentTarget.getBoundingClientRect();
         setTempFilters(prev => ({ ...prev, [field]: filters[field] }));
-        setOpenDropdown({
-            field,
-            position: {
-                top: rect.bottom + window.scrollY,
-                left: rect.left + window.scrollX
-            }
-        });
+        setOpenDropdown({ field, position: { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX } });
     };
-
     const toggleTempFilter = (field, value) => {
         setTempFilters(prev => {
             const curr = prev[field];
-            return {
-                ...prev,
-                [field]: curr.includes(value)
-                    ? curr.filter(v => v !== value)
-                    : [...curr, value]
-            };
+            return { ...prev, [field]: curr.includes(value) ? curr.filter(v => v !== value) : [...curr, value] };
         });
     };
+    const applyTempFilter = field => { setFilters(prev => ({ ...prev, [field]: tempFilters[field] })); setOpenDropdown(null); };
+    const clearTempFilter = field => { setTempFilters(prev => ({ ...prev, [field]: [] })); };
 
-    const applyTempFilter = field => {
-        setFilters(prev => ({ ...prev, [field]: tempFilters[field] }));
-        setOpenDropdown(null);
-    };
-
-    const clearTempFilter = field => {
-        setTempFilters(prev => ({ ...prev, [field]: [] }));
-    };
-
+    // determine visible tasks by role
     const getVisible = list => {
         if (user.role === 'admin') return list;
         if (user.role === 'teamLeader') {
@@ -71,9 +66,9 @@ export default function HomePage() {
             const teamId = me?.team;
             const teamMembers = workers.filter(w => w.team === teamId).map(w => w.username);
             return list.filter(t =>
-                (Array.isArray(t.assignedTo)
+                Array.isArray(t.assignedTo)
                     ? t.assignedTo.includes(user.username) || t.assignedTo.some(a => teamMembers.includes(a))
-                    : t.assignedTo === user.username || teamMembers.includes(t.assignedTo))
+                    : t.assignedTo === user.username || teamMembers.includes(t.assignedTo)
             );
         }
         return list.filter(t =>
@@ -104,8 +99,9 @@ export default function HomePage() {
     const filteredCompleted = applyFilters(completedVisible);
     const showExport = user.role === 'admin' && filteredPending.length > 0;
     const topHas = filteredPending.length > 0;
-    const sourceList = topHas ? [...filteredPending, ...filteredCompleted] : completedVisible;
+    const sourceList = topHas ? [...filteredPending, ...filteredCompleted] : filteredCompleted;
 
+    // options for filters
     const getOptions = (list, field) => list
         .map(task => {
             if (field === 'title') return task.title || `משימה ${task.taskId}`;
@@ -119,6 +115,7 @@ export default function HomePage() {
     const clientOpts = getOptions(sourceList, 'client');
     const workerOpts = getOptions(sourceList, 'assignedTo');
 
+    // export handler unchanged
     const handleExport = () => {
         const data = applyFilters(tasks);
         if (!data.length) return alert('אין משימות לייצוא');
@@ -137,49 +134,34 @@ export default function HomePage() {
 
     const renderHeader = (label, field) => (
         <th style={{ position: 'relative', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            <div onClick={(e) => handleOpenFilter(field, e)}>
+            <div onClick={e => handleOpenFilter(field, e)}>
                 {label} <span style={{ fontSize: '0.75em' }}>▼</span>
             </div>
         </th>
     );
-
     const renderPlain = text => <th>{text}</th>;
+
+    // compute hoursDone for a task
+    const getHoursDone = taskId =>
+        completedTasks.filter(e => e.taskId === taskId)
+            .reduce((sum, e) => sum + e.hoursDone, 0);
 
     return (
         <div className="homepage-background" dir="rtl">
             <div className="homepage-box">
                 <h1 className="homepage-title">ברוך הבא, {user.username}</h1>
 
-                <div className={showExport ? "homepage-header" : "homepage-header center-only"}>
+                <div className={showExport ? 'homepage-header' : 'homepage-header center-only'}>
                     <h3 className="m-0">משימות לביצוע:</h3>
-                    {showExport && (
-                        <button className="btn btn-success" onClick={handleExport}>ייצוא לאקסל</button>
-                    )}
+                    {showExport && <button className="btn btn-success" onClick={handleExport}>ייצוא לאקסל</button>}
                 </div>
 
                 {openDropdown && (
-                    <div
-                        className="floating-dropdown"
-                        style={{
-                            position: 'absolute',
-                            top: openDropdown.position.top,
-                            left: openDropdown.position.left,
-                            background: 'white',
-                            border: '1px solid #ccc',
-                            padding: '0.5rem',
-                            zIndex: 9999,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                            minWidth: '180px'
-                        }}
-                    >
+                    <div className="floating-dropdown" style={{ position: 'absolute', top: openDropdown.position.top, left: openDropdown.position.left, background: 'white', border: '1px solid #ccc', padding: '0.5rem', zIndex: 9999, boxShadow: '0 2px 8px rgba(0,0,0,0.2)', minWidth: '180px' }}>
                         {getOptions(sourceList, openDropdown.field).map((opt, idx) => (
                             <div key={idx} style={{ marginBottom: '0.25rem' }}>
                                 <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={tempFilters[openDropdown.field].includes(opt)}
-                                        onChange={() => toggleTempFilter(openDropdown.field, opt)}
-                                    /> {opt}
+                                    <input type="checkbox" checked={tempFilters[openDropdown.field].includes(opt)} onChange={() => toggleTempFilter(openDropdown.field, opt)} /> {opt}
                                 </label>
                             </div>
                         ))}
@@ -192,9 +174,7 @@ export default function HomePage() {
 
                 {(filters.title.length > 0 || filters.client.length > 0 || filters.assignedTo.length > 0) && (
                     <div className="text-end mb-2">
-                        <button className="btn btn-outline-secondary btn-sm" onClick={() => setFilters({ title: [], client: [], assignedTo: [] })}>
-                            נקה סינונים
-                        </button>
+                        <button className="btn btn-outline-secondary btn-sm" onClick={() => setFilters({ title: [], client: [], assignedTo: [] })}>נקה סינונים</button>
                     </div>
                 )}
 
@@ -202,9 +182,7 @@ export default function HomePage() {
                     <>
                         <p className="text-center">אין משימות להצגה</p>
                         {user.role === 'admin' && (
-                            <div className="text-center mt-3">
-                                <button className="btn btn-primary" onClick={() => setNavigateToAssignment(true)}>סידור משימות</button>
-                            </div>
+                            <div className="text-center mt-3"><button className="btn btn-primary" onClick={() => setNavigateToAssignment(true)}>סידור משימות</button></div>
                         )}
                     </>
                 ) : (
@@ -215,21 +193,70 @@ export default function HomePage() {
                             {renderHeader('שם משימה', 'title')}
                             {renderHeader('לקוח', 'client')}
                             {renderHeader('מי מבצע', 'assignedTo')}
+                            <th>התקדמות (שעות)</th>
                             <th>פעולה</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {filteredPending.map((task, idx) => (
-                            <tr key={task.id || idx}>
-                                <td>{idx + 1}</td>
-                                <td>{task.title || `משימה ${task.taskId}`}</td>
-                                <td>{task.client || `לקוח ${task.clientId}`}</td>
-                                <td>{Array.isArray(task.assignedTo) ? task.assignedTo.join(', ') : task.assignedTo}</td>
-                                <td>
-                                    <button className="btn btn-outline-success btn-sm" onClick={() => markTaskCompleted(task)}>סמן כבוצע</button>
-                                </td>
-                            </tr>
-                        ))}
+                        {filteredPending.map((task, idx) => {
+                            const hoursDone = getHoursDone(task.taskId);
+                            const remaining = task.hoursRequired - hoursDone;
+                            const isAdminOrLeader = user.role === 'admin' || user.role === 'teamLeader';
+                            const performerOptions = Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo];
+                            return (
+                                <tr key={task.taskId || idx}>
+                                    <td>{idx + 1}</td>
+                                    <td>{task.title || `משימה ${task.taskId}`}</td>
+                                    <td>{task.client || `לקוח ${task.clientId}`}</td>
+                                    <td>{Array.isArray(task.assignedTo) ? task.assignedTo.join(', ') : task.assignedTo}</td>
+                                    <td>{`${hoursDone}/${task.hoursRequired}`}</td>
+                                    <td style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max={remaining}
+                                            placeholder={remaining}
+                                            value={partialHours[task.taskId] || ''}
+                                            onChange={e => setPartialHours(prev => ({ ...prev, [task.taskId]: e.target.value }))}
+                                            style={{ width: '4em' }}
+                                        />
+                                        {isAdminOrLeader && (
+                                            <Select
+                                                options={performerOptions.map(u => ({ value: u, label: u }))}
+                                                value={selectedPerformer[task.taskId] || null}
+                                                onChange={opt => setSelectedPerformer(prev => ({ ...prev, [task.taskId]: opt }))}
+                                                placeholder="מבצע..."
+                                                className="react-select-container"
+                                                classNamePrefix="react-select"
+                                                styles={{ container: base => ({ ...base, width: '8em' }) }}
+                                            />
+                                        )}
+                                        <button
+                                            className="btn btn-outline-primary btn-sm"
+                                            onClick={() => {
+                                                const hours = parseFloat(partialHours[task.taskId]);
+                                                if (!hours || hours <= 0 || hours > remaining) {
+                                                    alert('הזן ערך תקין');
+                                                    return;
+                                                }
+                                                const performer = isAdminOrLeader
+                                                    ? selectedPerformer[task.taskId]?.value
+                                                    : user.username;
+                                                if (!performer) {
+                                                    alert('בחר מבצע');
+                                                    return;
+                                                }
+                                                recordTaskProgress(task.taskId, performer, hours);
+                                                setPartialHours(prev => ({ ...prev, [task.taskId]: '' }));
+                                                setSelectedPerformer(prev => ({ ...prev, [task.taskId]: null }));
+                                            }}
+                                        >
+                                            שמור
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                         </tbody>
                     </table>
                 )}
@@ -244,16 +271,18 @@ export default function HomePage() {
                             <th>#</th>
                             {!topHas ? renderHeader('שם משימה', 'title') : renderPlain('שם משימה')}
                             {!topHas ? renderHeader('לקוח', 'client') : renderPlain('לקוח')}
-                            {!topHas ? renderHeader('מי מבצע', 'assignedTo') : renderPlain('מי ביצע')}
+                            {!topHas ? renderHeader('מי ביצע', 'assignedTo') : renderPlain('מי ביצע')}
+                            <th>שעות שבוצעו</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {filteredCompleted.map((task, idx) => (
-                            <tr key={task.id || idx}>
+                        {filteredCompleted.map((ev, idx) => (
+                            <tr key={idx}>
                                 <td>{idx + 1}</td>
-                                <td>{task.title || `משימה ${task.taskId}`}</td>
-                                <td>{task.client || `לקוח ${task.clientId}`}</td>
-                                <td>{Array.isArray(task.assignedTo) ? task.assignedTo.join(', ') : task.assignedTo}</td>
+                                <td>{ev.title || `משימה ${ev.taskId}`}</td>
+                                <td>{ev.client || `לקוח ${ev.clientId}`}</td>
+                                <td>{ev.performer}</td>
+                                <td>{`${ev.hoursDone}/${ev.hoursRequired}`}</td>
                             </tr>
                         ))}
                         </tbody>

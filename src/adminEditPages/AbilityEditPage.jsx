@@ -2,25 +2,32 @@ import React, { useState } from 'react';
 import { useAppData } from '../context/AppDataContext';
 import './AdminEditPages.css';
 
-
 export default function AbilityEditPage() {
-    const { abilities, setAbilities, tasks, setTasks } = useAppData();
+    const {
+        abilities,
+        tasks, setTasks,
+        removeAbility
+    } = useAppData();
+
     const [newAbility, setNewAbility] = useState('');
 
     const handleAddAbility = () => {
         const trimmed = newAbility.trim();
         if (!trimmed) return;
         if (!abilities.includes(trimmed)) {
-            setAbilities([...abilities, trimmed]);
+            // להוסיף את היכולת באופן גלובלי
+            // כאן ניתן לקרוא לפונקציה מותאמת אם רוצים שכל ההוספה תעבור דרכה
+            setAbilities(prev => [...prev, trimmed]);
         }
         setNewAbility('');
     };
 
     const handleDeleteAbility = (ability) => {
         if (window.confirm(`האם למחוק את היכולת "${ability}"?`)) {
-            // מחיקת היכולת מהרשימה
-            setAbilities(abilities.filter(a => a !== ability));
-            // הסרת הדרישה מהמשימות
+            // הסרה מ-workers ו-abilities
+            removeAbility(ability);
+
+            // הסרת הדרישה מ-tasks.requires
             setTasks(tasks.map(t => ({
                 ...t,
                 requires: t.requires.filter(r => r !== ability)
@@ -70,5 +77,4 @@ export default function AbilityEditPage() {
             </div>
         </div>
     );
-
 }

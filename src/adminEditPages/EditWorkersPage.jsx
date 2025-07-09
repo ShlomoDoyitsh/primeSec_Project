@@ -330,7 +330,7 @@ class EditWorkersPage extends Component {
                                         <>
                                             <h5>החלפת מנהל עבור {modalClient.name}</h5>
                                             <Select
-                                                options={workerOpts}
+                                                options={workerOpts.filter(opt => opt.value !== selectedWorker.value)}
                                                 value={modalValue}
                                                 onChange={this.handleModalChange}
                                                 placeholder="בחר מנהל חדש..."

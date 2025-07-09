@@ -6,7 +6,7 @@ export function AppDataProvider({ children }) {
     const [workers, setWorkers] = useState([
         { username: 'ran', abilities: ['linux', 'networking', 'pentest'], team: 1, hoursWorked: 12 },
         { username: 'shlomo', abilities: ['pentest'], team: 1, hoursWorked: 9 },
-        { username: 'david', abilities: ['linux'], team: 1, hoursWorked: 6 },
+        { username: 'david', abilities: ['linux'], team: 2, hoursWorked: 6 },
         { username: 'michal', abilities: ['networking', 'pentest'], team: 2, hoursWorked: 14 },
         { username: 'liran', abilities: ['linux', 'networking'], team: 2, hoursWorked: 8 },
     ]);
@@ -52,12 +52,64 @@ export function AppDataProvider({ children }) {
     const [userList, setUserList] = useState([
         { username: 'ran', password: '1234', role: 'admin' },
         { username: 'shlomo', password: '5678', role: 'teamLeader' },
-        { username: 'david', password: '9999', role: 'user' },
+        { username: 'david', password: '9999', role: 'teamLeader' },
     ]);
 
     const login = (username, password) => {
         return userList.find(u => u.username === username && u.password === password) || null;
     };
+
+    function removeAbility(abilityName) {
+        setAbilities(prev => prev.filter(a => a !== abilityName));
+        setWorkers(prev =>
+            prev.map(w => ({
+                ...w,
+                abilities: w.abilities.filter(a => a !== abilityName)
+            }))
+        );
+    }
+
+    function updateUserRole(username, newRole) {
+        setUserList(prev =>
+            prev.map(u =>
+                u.username === username
+                    ? { ...u, role: newRole }
+                    : u
+            )
+        );
+    }
+
+    function changeTeamLeader(teamId, newLeaderUsername) {
+        // 1. מציאת מנהל צוות ישן (אם קיים)
+        const oldLeader = userList.find(u => {
+            if (u.role !== 'teamLeader') return false;
+            const w = workers.find(w => w.username === u.username);
+            return w && w.team === teamId;
+        });
+
+        // 2. עדכון userList: הורדה של התפקיד מהישן וקידום לחדש
+        setUserList(prev =>
+            prev.map(u => {
+                if (oldLeader && u.username === oldLeader.username) {
+                    return { ...u, role: 'user' };
+                }
+                if (u.username === newLeaderUsername) {
+                    return { ...u, role: 'teamLeader' };
+                }
+                return u;
+            })
+        );
+
+        // 3. עדכון workers: שייכות העובד החדש לצוות
+        setWorkers(prev =>
+            prev.map(w =>
+                w.username === newLeaderUsername
+                    ? { ...w, team: teamId }
+                    : w
+            )
+        );
+    }
+
 
     return (
         <AppDataContext.Provider value={{
@@ -67,7 +119,10 @@ export function AppDataProvider({ children }) {
             teams, setTeams,
             abilities, setAbilities,
             userList, setUserList,
-            login
+            login,
+            removeAbility,
+            updateUserRole,
+            changeTeamLeader,
         }}>
             {children}
         </AppDataContext.Provider>

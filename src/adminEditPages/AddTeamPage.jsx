@@ -18,7 +18,7 @@ class AddTeamPage extends Component {
         const last = this.state.memberSelections.at(-1);
         if (!last || !last.selectedWorker) return;
 
-        this.setState((prevState) => ({
+        this.setState(prevState => ({
             memberSelections: [
                 ...prevState.memberSelections,
                 { id: prevState.memberSelections.length + 1, selectedWorker: null },
@@ -32,35 +32,27 @@ class AddTeamPage extends Component {
         this.setState({ memberSelections: updated });
     };
 
-    handleRemoveMemberField = (index) => {
-        this.setState((prevState) => ({
+    handleRemoveMemberField = index => {
+        this.setState(prevState => ({
             memberSelections: prevState.memberSelections.filter((_, i) => i !== index),
         }));
     };
 
-    handleTeamLeaderChange = (selected) => {
+    handleTeamLeaderChange = selected => {
         const selectedUsername = selected?.value;
-        const filteredMembers = this.state.memberSelections.filter(
-            (ms) => ms.selectedWorker?.value !== selectedUsername
+        const filtered = this.state.memberSelections.filter(
+            ms => ms.selectedWorker?.value !== selectedUsername
         );
         this.setState({
             teamLeader: selected,
-            memberSelections:
-                filteredMembers.length > 0
-                    ? filteredMembers
-                    : [{ id: 1, selectedWorker: null }],
+            memberSelections: filtered.length > 0
+                ? filtered
+                : [{ id: 1, selectedWorker: null }],
         });
     };
 
     handleCreateTeam = () => {
-        const {
-            workers,
-            setWorkers,
-            teams,
-            setTeams,
-            userList,
-            setUserList,
-        } = this.context;
+        const { workers, setWorkers, teams, setTeams, updateUserRole } = this.context;
         const { teamLeader, memberSelections } = this.state;
 
         if (!teamLeader) {
@@ -68,73 +60,58 @@ class AddTeamPage extends Component {
             return;
         }
 
-        const newTeamId = Math.max(...teams.map((t) => t.id), 0) + 1;
+        const newTeamId = Math.max(...teams.map(t => t.id), 0) + 1;
         setTeams([...teams, { id: newTeamId, name: `צוות ${newTeamId}` }]);
 
-        const selectedUsernames = [
+        const selectedUsers = [
             teamLeader.value,
             ...memberSelections
-                .map((ms) => ms.selectedWorker?.value)
+                .map(ms => ms.selectedWorker?.value)
                 .filter(Boolean),
         ];
 
-        const updatedWorkers = workers.map((w) =>
-            selectedUsernames.includes(w.username)
-                ? { ...w, team: newTeamId }
-                : w
+        setWorkers(
+            workers.map(w =>
+                selectedUsers.includes(w.username)
+                    ? { ...w, team: newTeamId }
+                    : w
+            )
         );
-        setWorkers(updatedWorkers);
 
-        const updatedUserList = userList.map((u) =>
-            u.username === teamLeader.value ? { ...u, role: 'teamLeader' } : u
-        );
-        setUserList(updatedUserList);
+        // עדכון הרשאה של ראש צוות
+        updateUserRole(teamLeader.value, 'teamLeader');
 
         alert(`צוות חדש נוצר בהצלחה (ID: ${newTeamId})`);
-
-        this.setState({
-            teamLeader: null,
-            memberSelections: [{ id: 1, selectedWorker: null }],
-        });
+        this.setState({ teamLeader: null, memberSelections: [{ id: 1, selectedWorker: null }] });
     };
 
-    getAvailableWorkerOptions = (excludeList = [], blockTeamLeaders = false) => {
+    getAvailableWorkerOptions = (excludeList = []) => {
         const { workers, userList } = this.context;
-
-        const teamLeaders = new Set(
-            userList
-                .filter(
-                    (u) => u.role === 'teamLeader' || u.role === 'admin'
-                )
-                .map((u) => u.username)
+        const leaders = new Set(
+            userList.filter(u => u.role === 'teamLeader').map(u => u.username)
         );
 
         return workers
-            .filter(
-                (w) =>
-                    !excludeList.includes(w.username) &&
-                    (!blockTeamLeaders || !teamLeaders.has(w.username))
-            )
-            .map((w) => ({
-                value: w.username,
-                label: `${w.username} (צוות ${w.team})`,
-            }));
+            .map(w => {
+                const isLeader = leaders.has(w.username);
+                const note = isLeader ? ` (מנהל צוות מספר ${w.team})` : '';
+                return {
+                    value: w.username,
+                    label: `${w.username}${note}`,
+                    isDisabled: isLeader,
+                };
+            })
+            .filter(opt => !excludeList.includes(opt.value));
     };
 
     render() {
-        const { workers, userList } = this.context;
         const { teamLeader, memberSelections } = this.state;
-
-        // בודק אם יש להציג X למחיקה: רק אם מעל שדה אחד
         const canRemove = memberSelections.length > 1;
 
-        const teamLeaderOptions = this.getAvailableWorkerOptions(
-            [],
-            true // חוסם teamLeader ו-admin
-        );
+        const teamLeaderOptions = this.getAvailableWorkerOptions();
 
         return (
-            <div className="admin-edit-background">
+            <div className="admin-edit-background" dir="rtl">
                 <div className="admin-edit-box">
                     <h3>יצירת צוות חדש</h3>
 
@@ -151,53 +128,40 @@ class AddTeamPage extends Component {
                     <div className="mb-3">
                         <label>בחר חברי צוות:</label>
                         {memberSelections.map((field, index) => {
-                            const excludedUsernames = [
+                            const excluded = [
                                 teamLeader?.value,
                                 ...memberSelections
                                     .filter((_, i) => i !== index)
-                                    .map((ms) => ms.selectedWorker?.value),
+                                    .map(ms => ms.selectedWorker?.value),
                             ].filter(Boolean);
 
-                            const availableOptions = this.getAvailableWorkerOptions(
-                                excludedUsernames,
-                                true // חוסם teamLeader ו-admin
-                            );
+                            const options = this.getAvailableWorkerOptions(excluded);
 
                             return (
-                                <div
-                                    key={field.id}
-                                    className="d-flex mb-2 align-items-center gap-2"
-                                >
+                                <div key={field.id} className="d-flex mb-2 align-items-center gap-2">
                                     <Select
-                                        options={availableOptions}
+                                        options={options}
                                         value={field.selectedWorker}
-                                        onChange={(selected) =>
-                                            this.handleMemberChange(index, selected)
-                                        }
+                                        onChange={sel => this.handleMemberChange(index, sel)}
                                         placeholder="בחר עובד..."
                                         className="flex-grow-1"
                                     />
-                                    {/* כפתור הסרה יופיע רק אם יש יותר משדה אחד */}
                                     {canRemove && (
                                         <button
-                                            type="button"
                                             className="btn btn-outline-danger"
                                             onClick={() => this.handleRemoveMemberField(index)}
                                         >
                                             ✖
                                         </button>
                                     )}
-                                    {/* כפתור הוספה רק בשדה האחרון ובאם נבחר עובד */}
-                                    {index === memberSelections.length - 1 &&
-                                        field.selectedWorker && (
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success"
-                                                onClick={this.handleAddMemberField}
-                                            >
-                                                +
-                                            </button>
-                                        )}
+                                    {index === memberSelections.length - 1 && field.selectedWorker && (
+                                        <button
+                                            className="btn btn-outline-success"
+                                            onClick={this.handleAddMemberField}
+                                        >
+                                            +
+                                        </button>
+                                    )}
                                 </div>
                             );
                         })}
@@ -208,7 +172,6 @@ class AddTeamPage extends Component {
                     </button>
                 </div>
             </div>
-
         );
     }
 }

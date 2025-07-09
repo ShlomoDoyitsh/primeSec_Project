@@ -60,7 +60,7 @@ export default function TaskAssignmentPage() {
         if (manager && canDo(manager)) {
             sorted.push({
                 value: manager.username,
-                label: `${manager.username} (מנהל לקוח)`
+                label: `${manager.username} (מנהל לקוח | ${manager.hoursWorked} שעות)`
             });
         }
         capableTeam.forEach(w => {
@@ -122,10 +122,7 @@ export default function TaskAssignmentPage() {
     return (
         <div className="task-assignment-background">
             <div className="task-assignment-container">
-
-                    <h2>סידור משימה</h2>
-
-
+                <h2>סידור משימה</h2>
 
                 <div>
                     <label>בחר משימה:</label>
@@ -151,7 +148,7 @@ export default function TaskAssignmentPage() {
                     />
                 </div>
 
-                <button  className="btn-primary-center" onClick={handleFindWorkers}>
+                <button className="btn-primary-center" onClick={handleFindWorkers}>
                     מצא עובדים מתאימים
                 </button>
 
@@ -187,6 +184,5 @@ export default function TaskAssignmentPage() {
                 )}
             </div>
         </div>
-
     );
 }
